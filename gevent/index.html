@@ -52,7 +52,7 @@
 <li><a href="#core">Core</a><ul>
 <li><a href="#greenlets">Greenlets</a></li>
 <li><a href="#synchronous-asynchronous-execution">Ejecución Sincrona &amp; Asincrona.</a></li>
-<li><a href="#determinism">Determinism<o/a></li>
+<li><a href="#determinism">Determinismo</a></li>
 <li><a href="#spawning-greenlets">Spawning Greenlets</a></li>
 <li><a href="#greenlet-state">Estado de Greenlet</a></li>
 <li><a href="#program-shutdown">Programa de Cierre</a></li>
@@ -70,7 +70,7 @@
 <li><a href="#actors">Actores</a></li>
 </ul>
 </li>
-<li><a href="#real-world-applications">Real World Applications</a><ul>
+<li><a href="#real-world-applications">Aplicaciones del Mundo Real</a><ul>
 <li><a href="#gevent-zeromq">Gevent ZeroMQ</a></li>
 <li><a href="#simple-servers">Simple Servers</a></li>
 <li><a href="#wsgi-servers">WSGI Servers</a></li>
@@ -82,15 +82,14 @@
 </li>
 </ul>
 </div>
-<h1 id="introduction">Introduction</h1>
-<p>The structure of this tutorial assumes an intermediate level
-knowledge of Python but not much else. No knowledge of
-concurrency is expected. The goal is to give you
-the tools you need to get going with gevent, help you tame
-your existing concurrency problems and start writing asynchronous
-applications today.</p>
-<h3 id="contributors">Contributors</h3>
-<p>In chronological order of contribution: 
+<h1 id="introduction">Introducción</h1>
+<p>La estructura de este tutorial asume un nivel intermedio de conocimiento de Python pero no demasiado.
+Ningún conocimiento de concurrencia es esperado.
+El objetivo es darte las herramientas para que inicies con gevent,
+ayudarte a manejar tus problemas de concurrencias actuales y empezar a escribir
+aplicaciones asíncronas.</p>
+<h3 id="contributors">Contribudores</h3>
+<p>En orden cronológico de contribución:
 <a href="http://www.stephendiehl.com">Stephen Diehl</a>
 <a href="https://github.com/jerem">J&eacute;r&eacute;my Bethmont</a>
 <a href="https://github.com/sww">sww</a>
@@ -102,21 +101,22 @@ applications today.</p>
 <a href="https://github.com/ehebert">Eddie Hebert</a>
 <a href="http://notmyidea.org">Alexis Metaireau</a>
 <a href="https://github.com/djv">Daniel Velkov</a></p>
-<p>Also thanks to Denis Bilenko for writing gevent and guidance in
-constructing this tutorial.</p>
-<p>This is a collaborative document published under MIT license.
-Have something to add? See a typo? Fork and issue a
-pull request <a href="https://github.com/sdiehl/gevent-tutorial">Github</a>.
-Any and all contributions are welcome.</p>
-<p>This page is also <a href="http://methane.github.com/gevent-tutorial-ja">available in Japanese</a>.</p>
+<p>También un agradecimiento a Denis Bilenko por escribir gevent y orientar en la construcción de este
+tutorial.</p>
+<p>Este es un documento colaborativo publicado bajo la Licencia MIT.
+Tienes algo que agregar? Viste un error?. Crear un fork y reporta un pull request 
+<a href="https://github.com/sdiehl/gevent-tutorial">Github</a>.
+Todas las contribuciones son bienvenidas.</p>
+<p>Esta página está también <a href="http://methane.github.com/gevent-tutorial-ja">disponible en Japones</a>.</p>
+<p>Esta página está también <a href="http://ovnicraft.github.com/gevent">disponible en Español</a>.</p>
 <h1 id="core">Core</h1>
 <h2 id="greenlets">Greenlets</h2>
-<p>The primary pattern used in gevent is the <strong>Greenlet</strong>, a
-lightweight coroutine provided to Python as a C extension module.
-Greenlets all run inside of the OS process for the main
-program but are scheduled cooperatively. </p>
+<p>El patrón primario usado en gevent es<strong>Greenlet</strong>, una liviana
+corutina que Python brinda como un módulo de extensión de C.
+Greenlets todos corren dentro de procesos del SO para el programa principal
+pero son calendarizados cooperativamente. </p>
 <blockquote>
-<p>Only one greenlet is ever running at any given time.</p>
+<p>Sólo un greenlet está siempre corriendo en un momento dado.</p>
 </blockquote>
 <p>This differs from any of the real parallelism constructs provided by
 <code>multiprocessing</code> or <code>threading</code> libraries which do spin processes
