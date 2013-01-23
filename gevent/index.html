@@ -39,7 +39,7 @@
         </h3>
 
         <blockquote>
-        gevent es una libraría concurrente basada en <a href="http://software.schmorp.de/pkg/libev.html">libev</a>.  Provee una API limpia para una variedad de tareas de concurrencia y red.
+        gevent es una librería concurrente basada en <a href="http://software.schmorp.de/pkg/libev.html">libev</a>.  Provee una API limpia para una variedad de tareas de concurrencia y red.
         </blockquote>
     </header>
 
@@ -118,17 +118,16 @@ pero son calendarizados cooperativamente. </p>
 <blockquote>
 <p>Sólo un greenlet está siempre corriendo en un momento dado.</p>
 </blockquote>
-<p>This differs from any of the real parallelism constructs provided by
-<code>multiprocessing</code> or <code>threading</code> libraries which do spin processes
-and POSIX threads which are scheduled by the operating system and
-are truly parallel.</p>
-<h2 id="synchronous-asynchronous-execution">Synchronous &amp; Asynchronous Execution</h2>
-<p>The core idea of concurrency is that a larger task can be broken down
-into a collection of subtasks which are scheduled to run simultaneously
-or <em>asynchronously</em>, instead of one at a time or <em>synchronously</em>. A
-switch between the two subtasks is known as a <em>context switch</em>.</p>
-<p>A context switch in gevent is done through <em>yielding</em>. In this case
-example we have two contexts which yield to each other through invoking
+<p>Esto difiere de cualquier construcción real de paralelismo proporcionada por librerías de 
+<code>multiprocesamiento</code> o de <code>hilos</code> que hacen resuelven procesos e hilos
+POSIX que son programados por el sistema operativoy son realmente paralelos.</p>
+<h2 id="synchronous-asynchronous-execution">Ejecución Sincrona &amp; Asíncrona</h2>
+<p>La idea principal de la concurrencia es que una larga tarea puede ser subdividida en
+ una colección de subtareas que son calendarizadas para correr simultáneamente
+o <em>asíncronamente</em>, en lugar de una a la vez o  <em>sincrónicamente</em>. Un
+conmutador entre dos tareas es conocido como <em>cambio de contexto</em>.</p>
+<p>Un conmutador de contexto en gevent se realizá a través de <em>yielding</em>. En este ejemplo
+tenemos dos contextos que ceden a otro a través de invocar
 <code>gevent.sleep(0)</code>.</p>
 <pre><code class="python">
 import gevent
