@@ -1,0 +1,154 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Copy &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Utilities" href="index.html" />
+    <link rel="next" title="Psql" href="psql.html" />
+    <link rel="prev" title="Backup and Restore" href="backup-restore.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="copy">
+<h1>Copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-copy">
+<h2>What is copy<a class="headerlink" href="#what-is-copy" title="Permalink to this headline">¶</a></h2>
+<p>Postgres ships with several great utilities for moving your data around. The
+obvious ones are pg_dump and pg_restore for of course database backups and
+restores. A similar utility thats far less talked about, but equally as
+valuable is Postgres&#8217;s copy utility. Copy allows you to do <cite>copy</cite> data into and
+out of tables in your database. It supports several modes including:</p>
+<blockquote>
+<div><ul class="simple">
+<li>binary</li>
+<li>tab delimited</li>
+<li>csv delimited</li>
+</ul>
+</div></blockquote>
+<p>Whether its for bulk data loading for testing, doing some light weight ETL, or
+simply grabbing a data extract to send to someone its a utility every developer
+will want to utilize at some point.</p>
+</div>
+<div class="section" id="copy-in-action">
+<h2>Copy in Action<a class="headerlink" href="#copy-in-action" title="Permalink to this headline">¶</a></h2>
+<p>Extracting all employees to a tab delimited file:</p>
+<div class="highlight-sql"><pre>\copy (SELECT * FROM employees) TO '~/employees.tsv';</pre>
+</div>
+<p>Extracting all employees to a csv delimited file:</p>
+<div class="highlight-sql"><pre>\copy (SELECT * FROM employees) TO '~/employees.csv' WITH (FORMAT CSV);</pre>
+</div>
+<p>Extracting all employees to a binary file (note the quotes around the word Binary):</p>
+<div class="highlight-sql"><pre>\copy (SELECT * FROM employees) TO '~/employees.dat' WITH (FORMAT "Binary");</pre>
+</div>
+<p>And for loading data into a table the equivalent for each of the above:</p>
+<div class="highlight-sql"><pre>\copy employees FROM '~/employees.tsv';
+\copy employees FROM '~/employees.csv' WITH CSV;
+\copy employees FROM '~/employees.dat' WITH BINARY;</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Copy</a><ul>
+<li><a class="reference internal" href="#what-is-copy">What is copy</a></li>
+<li><a class="reference internal" href="#copy-in-action">Copy in Action</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Utilities</a><ul>
+      <li>Previous: <a href="backup-restore.html" title="previous chapter">Backup and Restore</a></li>
+      <li>Next: <a href="psql.html" title="next chapter">Psql</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

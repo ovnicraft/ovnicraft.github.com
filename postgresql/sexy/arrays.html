@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Arrays &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Postgres the Sexy Parts" href="index.html" />
+    <link rel="next" title="Enumerated Data Types" href="enums.html" />
+    <link rel="prev" title="HStore" href="hstore.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="arrays">
+<h1>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h1>
+<p>Postgres allows columns to be defined as arrays of variable length. The type of the array can be an inbuilt type, a user-defined type or an enumerated type.</p>
+<p>Declaring array columns in tables:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">rock_band</span>
+<span class="p">(</span>
+   <span class="n">name</span> <span class="nb">text</span><span class="p">,</span>
+   <span class="n">members</span> <span class="nb">text</span><span class="p">[]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The above command will create a table rock_band with a text type column for the name of the band, and a column ‘members’ with a one-dimesional array to represent names of the members.</p>
+<div class="section" id="inserting-array-values">
+<h2>Inserting array values<a class="headerlink" href="#inserting-array-values" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">rock_band</span>
+<span class="k">VALUES</span>
+<span class="p">(</span><span class="s1">&#39;Led Zeppelin&#39;</span><span class="p">,</span>
+<span class="s1">&#39;{&quot;Page&quot;, &quot;Plant&quot;, &quot;Jones&quot;, &quot;Bonham&quot;}&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the array literals are double-quoted. Single quotes will give an error.</p>
+<p>Querying the table will display:</p>
+<div class="highlight-sql"><pre>postgres=# select * from rock_band;
+            name    |       members
+    --------------+---------------------------
+     Led Zeppelin | {Page,Plant,Jones,Bonham}
+    (1 row)</pre>
+</div>
+<p>An alternative syntax to insert is to use the array constructor:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">rock_band</span>
+    <span class="k">VALUES</span>
+    <span class="p">(</span><span class="s1">&#39;Pink Floyd&#39;</span><span class="p">,</span>
+    <span class="nb">ARRAY</span><span class="p">[</span><span class="s1">&#39;Barrett&#39;</span><span class="p">,</span> <span class="s1">&#39;Gilmour&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>When using the ARRAY constructor, the values are single-quoted.</p>
+<div class="highlight-sql"><pre>postgres=# select * from rock_band;
+            name    |       members
+    --------------+---------------------------
+     Led Zeppelin | {Page,Plant,Jones,Bonham}
+     Pink Floyd   | {Barrett,Gilmour}
+    (2 rows)</pre>
+</div>
+</div>
+<div class="section" id="accessing-arrays">
+<h2>Accessing arrays<a class="headerlink" href="#accessing-arrays" title="Permalink to this headline">¶</a></h2>
+<p>Array values can be accessed using subscripts or slices:</p>
+<div class="highlight-sql"><pre>postgres=# select name from rock_band where members[2] = 'Plant';
+    name
+--------------
+ Led Zeppelin
+(1 row)
+
+postgres=# select members[1:2] from rock_band;
+      members
+-------------------
+ {Page,Plant}
+ {Barrett,Gilmour}
+(2 rows)</pre>
+</div>
+</div>
+<div class="section" id="modifying-arrays">
+<h2>Modifying arrays<a class="headerlink" href="#modifying-arrays" title="Permalink to this headline">¶</a></h2>
+<p>Arrays can be updated as a single element or as a whole:</p>
+<p>Single-element update:</p>
+<div class="highlight-sql"><pre>postgres=# UPDATE rock_band set members[2] = 'Waters' where name = 'Pink Floyd';
+UPDATE 1
+postgres=# select * from rock_band where name = 'Pink Floyd';
+     name    |       members
+------------+------------------
+ Pink Floyd | {Barrett,Waters}
+(1 row)</pre>
+</div>
+<p>Whole array update:</p>
+<div class="highlight-sql"><pre>postgres=# UPDATE rock_band set members = '{"Mason", "Wright", "Gilmour"}' where name = 'Pink Floyd';
+UPDATE 1
+postgres=# select * from rock_band where name = 'Pink Floyd';
+name        |        members
+------------+------------------------
+ Pink Floyd | {Mason,Wright,Gilmour}
+(1 row)</pre>
+</div>
+</div>
+<div class="section" id="searching-in-arrays">
+<h2>Searching in arrays<a class="headerlink" href="#searching-in-arrays" title="Permalink to this headline">¶</a></h2>
+<p>To search for an array that has a particular value, the keyword ANY is used.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">postgres</span><span class="o">=#</span> <span class="k">select</span> <span class="n">name</span> <span class="k">from</span> <span class="n">rock_band</span> <span class="k">where</span> <span class="s1">&#39;Mason&#39;</span> <span class="o">=</span> <span class="k">ANY</span><span class="p">(</span><span class="n">members</span><span class="p">);</span>
+    <span class="n">name</span>
+<span class="c1">------------</span>
+ <span class="n">Pink</span> <span class="n">Floyd</span>
+<span class="p">(</span><span class="mi">1</span> <span class="k">row</span><span class="p">)</span>
+
+<span class="n">postgres</span><span class="o">=#</span> <span class="k">select</span> <span class="n">name</span> <span class="k">from</span> <span class="n">rock_band</span> <span class="k">where</span> <span class="s1">&#39;Barrett&#39;</span> <span class="o">=</span> <span class="k">ANY</span><span class="p">(</span><span class="n">members</span><span class="p">);</span>
+ <span class="n">name</span>
+<span class="c1">------</span>
+<span class="p">(</span><span class="mi">0</span> <span class="k">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To search if all values of the array match a value, ALL is used.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Article contributed by
+<a class="reference external" href="http://cgopalan.tumblr.com">Chandrakant Gopalan</a>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Arrays</a><ul>
+<li><a class="reference internal" href="#inserting-array-values">Inserting array values</a></li>
+<li><a class="reference internal" href="#accessing-arrays">Accessing arrays</a></li>
+<li><a class="reference internal" href="#modifying-arrays">Modifying arrays</a></li>
+<li><a class="reference internal" href="#searching-in-arrays">Searching in arrays</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Postgres the Sexy Parts</a><ul>
+      <li>Previous: <a href="hstore.html" title="previous chapter">HStore</a></li>
+      <li>Next: <a href="enums.html" title="next chapter">Enumerated Data Types</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

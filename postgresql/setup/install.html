@@ -1,0 +1,166 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Instalando Postgres &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Instalación" href="index.html" />
+    <link rel="next" title="Usuarios" href="users.html" />
+    <link rel="prev" title="Instalación" href="index.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="instalando-postgres">
+<h1>Instalando Postgres<a class="headerlink" href="#instalando-postgres" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="para-mac">
+<h2>Para Mac<a class="headerlink" href="#para-mac" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.postgresapp.com">Postgres App</a></p>
+</div>
+<div class="section" id="para-ubuntu">
+<h2>Para Ubuntu<a class="headerlink" href="#para-ubuntu" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh"><div class="highlight"><pre>sudo apt-get install postgresql
+</pre></div>
+</div>
+</div>
+<div class="section" id="para-windows">
+<h2>Para Windows<a class="headerlink" href="#para-windows" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.enterprisedb.com/products-services-training/pgdownload#windows">Instalador de Windows</a></p>
+</div>
+<div class="section" id="para-instalaciones-yum-fedora-red-hat-centos-scientific-linux">
+<h2>Para instalaciones YUM (Fedora / Red Hat / CentOS / Scientific Linux)<a class="headerlink" href="#para-instalaciones-yum-fedora-red-hat-centos-scientific-linux" title="Permalink to this headline">¶</a></h2>
+<p>(Ejemplo usado para PostgreSQL 9.2 en CentOS 6.4 x64)</p>
+<ol class="arabic simple">
+<li>Diríjase a <a class="reference external" href="http://yum.postgresql.org/">Repositorio Yum de PostgreSQL</a></li>
+<li>Seleccione la versión de PostgreSQL que desea instalar y luego el SO, versión y arquitectura.</li>
+<li>Descargar el RPM para tu plataforma (usando el link del paso 2)</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>curl -O http://yum.postgresql.org/9.2/redhat/rhel-6-x86_64/pgdg-centos92-9.2-6.noarch.rpm
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Instalar el RPM</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>rpm -ivh pgdg-centos92-9.2-6.noarch.rpm
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>Con una busqueda rápida le mostrará los paquetes diposnibles para postgres</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>yum list postgres*
+</pre></div>
+</div>
+<p>Nota: Probablemente liste versiones anteriores también, asegúrese seleccionar la versión correcta que deseas instalar y todos los paquetes sean de la misma versión ejem: servidor, cliente, contrib (no siempre son necesarias pero es mejor, verdad?)</p>
+<ol class="arabic simple" start="6">
+<li>Instalar los paquetes descargados</li>
+</ol>
+<div class="highlight-sh"><div class="highlight"><pre>yum install postgresql92-server.x86_64 postgresql92-contrib.x86_64 postgresql92-devel.x86_64
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Instalando Postgres</a><ul>
+<li><a class="reference internal" href="#para-mac">Para Mac</a></li>
+<li><a class="reference internal" href="#para-ubuntu">Para Ubuntu</a></li>
+<li><a class="reference internal" href="#para-windows">Para Windows</a></li>
+<li><a class="reference internal" href="#para-instalaciones-yum-fedora-red-hat-centos-scientific-linux">Para instalaciones YUM (Fedora / Red Hat / CentOS / Scientific Linux)</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Instalación</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Instalación</a></li>
+      <li>Next: <a href="users.html" title="next chapter">Usuarios</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

@@ -1,0 +1,167 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Joins &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="General SQL" href="index.html" />
+    <link rel="next" title="Views" href="views.html" />
+    <link rel="prev" title="Querying Data" href="select.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="joins">
+<h1>Joins<a class="headerlink" href="#joins" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-are-they">
+<h2>What are they?<a class="headerlink" href="#what-are-they" title="Permalink to this headline">¶</a></h2>
+<p>Joins are when you combine data from two different tables. The means in which you combine them depend on the type of join you use. There&#8217;s multiple ways to join data, and we&#8217;ll walk through each of those for starters lets look at an initial example to accomplish and the join that does it.</p>
+<p>All of these examples will be based on our example schema:</p>
+<div class="highlight-sql"><pre>craig=# \d
+         List of relations
+ Schema |   Name    | Type  | Owner
+--------+-----------+-------+-------
+ public | products  | table | craig
+ public | purchases | table | craig
+ public | users     | table | craig
+(3 rows)</pre>
+</div>
+</div>
+<div class="section" id="joining-some-data">
+<h2>Joining some data<a class="headerlink" href="#joining-some-data" title="Permalink to this headline">¶</a></h2>
+<p>Lets start with an example of wanting to find which products have been purchased recently. To do this we&#8217;ll obviously need data from both our products table and our purchases table. Look at each of the tables to get a better idea of what columns they have:</p>
+<div class="highlight-sql"><pre>\d products
+             Table "public.products"
+   Column    |          Type          | Modifiers
+-------------+------------------------+-----------
+ id          | integer                |
+ title       | character varying(255) |
+ description | text                   |
+ price       | numeric(10,2)          |</pre>
+</div>
+<div class="highlight-sql"><pre>\d purchases
+     Table "public.purchases"
+   Column   |  Type   | Modifiers
+------------+---------+-----------
+ id         | integer |
+ user_id    | integer |
+ product_id | integer |
+ quantity   | integer |</pre>
+</div>
+<p>When two tables are related its done so by keys. We&#8217;ll explain more on this later, the important part for now is that we can see the <cite>product_id</cite> on purchases is intended to reference the <cite>id</cite> field on products. With this we can now construct our query and retrieve as an example 5 purchages</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span>
+   <span class="n">products</span><span class="p">.</span><span class="n">title</span><span class="p">,</span>
+   <span class="n">purchases</span><span class="p">.</span><span class="n">quantity</span>
+<span class="k">FROM</span>
+   <span class="n">products</span><span class="p">,</span>
+   <span class="n">purchases</span>
+<span class="k">WHERE</span>
+   <span class="n">products</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">purchases</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">LIMIT</span> <span class="mi">5</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Joins</a><ul>
+<li><a class="reference internal" href="#what-are-they">What are they?</a></li>
+<li><a class="reference internal" href="#joining-some-data">Joining some data</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">General SQL</a><ul>
+      <li>Previous: <a href="select.html" title="previous chapter">Querying Data</a></li>
+      <li>Next: <a href="views.html" title="next chapter">Views</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

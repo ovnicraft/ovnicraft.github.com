@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Views &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="General SQL" href="index.html" />
+    <link rel="next" title="Utilities" href="../utilities/index.html" />
+    <link rel="prev" title="Joins" href="joins.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="views">
+<h1>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-a-view">
+<h2>What is a View<a class="headerlink" href="#what-is-a-view" title="Permalink to this headline">¶</a></h2>
+<p>According to <a class="reference external" href="http://en.wikipedia.org/wiki/View_%28database%29">wikipedia</a>
+&#8220;a view consists of a stored query accessible as a virtual table in a relational
+database or a set of documents in a document-oriented database composed of the
+result set of a query or map and reduce functions.&#8221;</p>
+<p>In simpler terms a view is simply a logical table that automatically connects
+the pieces of underlying data. It does not actually duplicate or persist the
+data as its viewed in a logical form.</p>
+</div>
+<div class="section" id="why-use-a-view">
+<h2>Why use a View<a class="headerlink" href="#why-use-a-view" title="Permalink to this headline">¶</a></h2>
+<p>Views are useful for many cases. Views are a great way to simplify your
+data model when providing it to others to work with. Additionally it can
+simplify working with your data for yourself as well. If you find yourself
+routinely joining two sets of data in a similar way a view may ease the process
+of duplicating that many times.</p>
+<p>When working with others not familiar with SQL a view is a great way to provide
+your un-normalized data.</p>
+</div>
+<div class="section" id="a-view-in-action">
+<h2>A View in Action<a class="headerlink" href="#a-view-in-action" title="Permalink to this headline">¶</a></h2>
+<p>Lets take an example of some tables:</p>
+<img alt="http://f.cl.ly/items/072Q3Y073Z0o413b3N2x/Untitled%202-1.png" src="http://f.cl.ly/items/072Q3Y073Z0o413b3N2x/Untitled%202-1.png" style="height: 220px;" />
+<img alt="http://f.cl.ly/items/2Q470O2S2f2v1u091r3h/Untitled%202-2.png" src="http://f.cl.ly/items/2Q470O2S2f2v1u091r3h/Untitled%202-2.png" style="height: 300px;" />
+<img alt="http://f.cl.ly/items/2I0a2u3z1x1Q0h2t3f1M/Untitled%202.png" src="http://f.cl.ly/items/2I0a2u3z1x1Q0h2t3f1M/Untitled%202.png" style="height: 300px;" />
+<p>To get your employees and their departments you&#8217;d often write a query that looks
+something similar to:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">salary</span><span class="p">,</span>
+  <span class="n">departments</span><span class="p">.</span><span class="n">department</span>
+<span class="k">FROM</span>
+  <span class="n">employees</span><span class="p">,</span>
+  <span class="n">employee_departments</span><span class="p">,</span>
+  <span class="n">departments</span>
+<span class="k">WHERE</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">employee_departments</span><span class="p">.</span><span class="n">employee_id</span>
+  <span class="k">AND</span> <span class="n">departments</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">employee_departments</span><span class="p">.</span><span class="n">department_id</span>
+</pre></div>
+</div>
+<p>In this case its not too complicated, though it does become tedious each time
+you wish to report against employes and their departments. This can be greatly
+simplified by creating a view which will automatically do these joins for you:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">VIEW</span> <span class="n">employee_view</span> <span class="k">AS</span>
+<span class="k">SELECT</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">salary</span><span class="p">,</span>
+  <span class="n">departments</span><span class="p">.</span><span class="n">department</span>
+<span class="k">FROM</span>
+  <span class="n">employees</span><span class="p">,</span>
+  <span class="n">employee_departments</span><span class="p">,</span>
+  <span class="n">departments</span>
+<span class="k">WHERE</span>
+  <span class="n">employees</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">employee_departments</span><span class="p">.</span><span class="n">employee_id</span>
+  <span class="k">AND</span> <span class="n">departments</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">employee_departments</span><span class="p">.</span><span class="n">department_id</span>
+</pre></div>
+</div>
+<p>Now you can simply query your new table directly:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="n">employee_view</span>
+</pre></div>
+</div>
+<p>And have it yield just as it would with the join above:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">last_name</span>    <span class="n">salary</span>   <span class="n">department</span>
+<span class="n">Jones</span>        <span class="mi">45000</span>    <span class="n">Accounting</span>
+<span class="n">Adams</span>        <span class="mi">50000</span>    <span class="n">Sales</span>
+<span class="n">Johnson</span>      <span class="mi">40000</span>    <span class="n">Marketing</span>
+<span class="n">Williams</span>     <span class="mi">37000</span>    <span class="n">Accounting</span>
+<span class="n">Smith</span>        <span class="mi">55000</span>    <span class="n">Sales</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Views</a><ul>
+<li><a class="reference internal" href="#what-is-a-view">What is a View</a></li>
+<li><a class="reference internal" href="#why-use-a-view">Why use a View</a></li>
+<li><a class="reference internal" href="#a-view-in-action">A View in Action</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">General SQL</a><ul>
+      <li>Previous: <a href="joins.html" title="previous chapter">Joins</a></li>
+      <li>Next: <a href="../utilities/index.html" title="next chapter">Utilities</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

@@ -1,0 +1,180 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Querying Data &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="General SQL" href="index.html" />
+    <link rel="next" title="Joins" href="joins.html" />
+    <link rel="prev" title="General SQL" href="index.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="querying-data">
+<h1>Querying Data<a class="headerlink" href="#querying-data" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="tables">
+<h2>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h2>
+<p>Within a traditional RDBMS a particular data model will be stored within a table. Data may interact across tables, but we&#8217;ll cover that later with joins. For now we&#8217;ll start by viewing the tables that are available. Within Postgres we can do this by running the command <cite>\d</cite>:</p>
+<div class="highlight-sql"><pre>craig=# \d
+         List of relations
+ Schema |   Name    | Type  | Owner
+--------+-----------+-------+-------
+ public | products  | table | craig
+ public | purchases | table | craig
+ public | users     | table | craig
+(3 rows)</pre>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Querying Data<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Lets start by laying out some data. In this case lets start with our users, this is the first part in constructing a query (knowing where your data is coming from). The next part is examining what data we can query. We can again do this with the <cite>\d</cite> command, though this time we&#8217;ll append the table name to it:</p>
+<div class="highlight-sql"><pre>craig=# \d users
+                 Table "public.users"
+   Column   |            Type             | Modifiers
+------------+-----------------------------+-----------
+ id         | integer                     |
+ first_name | character varying(50)       |
+ last_name  | character varying(50)       |
+ email      | character varying(255)      |
+ created_at | timestamp without time zone |
+ updated_at | timestamp without time zone |
+ last_login | timestamp without time zone |</pre>
+</div>
+<p>Here we can see we&#8217;ve got a variety of data, lets for starters say we just want the first_name, last_name, and email of users. Now that we know the data we want below we can construct our query:</p>
+<ul class="simple">
+<li>The table we need to query</li>
+<li>The data we want from that table</li>
+</ul>
+<p>The syntax for doing this is below, it contains the data you want to retrieve, followed by where its coming from, with a semicolon signaling thats the end of your query:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">craig</span><span class="o">=#</span> <span class="k">SELECT</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">email</span>
+<span class="n">craig</span><span class="o">-#</span> <span class="k">FROM</span> <span class="n">users</span><span class="p">;</span>
+   <span class="n">first_name</span> <span class="o">|</span> <span class="n">last_name</span> <span class="o">|</span>           <span class="n">email</span>
+<span class="c1">------------+-----------+---------------------------</span>
+ <span class="n">Craig</span>      <span class="o">|</span> <span class="n">Kerstiens</span> <span class="o">|</span> <span class="n">craig</span><span class="p">.</span><span class="n">kerstiens</span><span class="o">@</span><span class="n">gmail</span><span class="p">.</span><span class="n">com</span>
+<span class="p">(</span><span class="mi">1</span> <span class="k">row</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is great when we want to pull back all of the data in a table, but with any size-able dataset this is far less feasible. In such cases what we&#8217;ll want to do is potentially both limit the amount of data we return as well as filter it. First lets start with filtering.</p>
+</div>
+<div class="section" id="filtering-data">
+<h2>Filtering Data<a class="headerlink" href="#filtering-data" title="Permalink to this headline">¶</a></h2>
+<p>To filter data you can use a combination of filters. The filter is first initially specified with the <cite>WHERE</cite> condition. An example of any user that has created an account since the start of 2012:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">email</span><span class="p">,</span> <span class="n">created_at</span>
+<span class="k">FROM</span> <span class="n">users</span>
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2012-01-01&#39;</span>
+</pre></div>
+</div>
+<p>We can also combine this with other conditions using either the <cite>AND</cite> or the <cite>OR</cite> clause. To find all users that created accounts in January of 2012:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">email</span><span class="p">,</span> <span class="n">created_at</span>
+<span class="k">FROM</span> <span class="n">users</span>
+<span class="k">WHERE</span> <span class="n">created_at</span> <span class="o">&gt;=</span> <span class="s1">&#39;2012-01-01&#39;</span>
+<span class="k">AND</span> <span class="n">created_at</span> <span class="o">&lt;</span> <span class="s1">&#39;2012-02-01&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Querying Data</a><ul>
+<li><a class="reference internal" href="#tables">Tables</a></li>
+<li><a class="reference internal" href="#id1">Querying Data</a></li>
+<li><a class="reference internal" href="#filtering-data">Filtering Data</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">General SQL</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">General SQL</a></li>
+      <li>Next: <a href="joins.html" title="next chapter">Joins</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

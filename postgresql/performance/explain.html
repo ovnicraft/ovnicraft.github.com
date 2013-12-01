@@ -1,0 +1,182 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Execution Plan &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Postgres Performance" href="index.html" />
+    <link rel="next" title="Conditional Constraints" href="conditional.html" />
+    <link rel="prev" title="Indexes" href="indexes.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="execution-plan">
+<h1>Execution Plan<a class="headerlink" href="#execution-plan" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-an-execution-plan">
+<h2>What is an Execution Plan<a class="headerlink" href="#what-is-an-execution-plan" title="Permalink to this headline">¶</a></h2>
+<p>Postgres has a great ability to show you how it will actually execute a query under the covers. This is known as an <cite>execution plan</cite> and which is exposed by <strong>explain</strong>. Understanding this tells you how you can optimize your database with indexes to improve performance. The hard part for most users is understanding the output of these. While there are many pieces involved in understanding here are a few key things most developers should know.</p>
+</div>
+<div class="section" id="more-about-explain">
+<h2>More About Explain<a class="headerlink" href="#more-about-explain" title="Permalink to this headline">¶</a></h2>
+<p>Every query within Postgres has an execution plan when executed. There are three forms of running <strong>explain</strong> to expose this to you:</p>
+<ul class="simple">
+<li>The generic form (only shows what is likely to happen)</li>
+<li>Analyze form (which actually runs the query and outputs what does happen)</li>
+<li>Verbose form (stay away)</li>
+</ul>
+<p>Most commonly, <strong>explain</strong> is run on <cite>SELECT</cite> statements. However, you can also use it on:</p>
+<ul class="simple">
+<li>INSERT</li>
+<li>UPDATE</li>
+<li>DELETE</li>
+<li>EXECUTE</li>
+<li>DECLARE</li>
+</ul>
+</div>
+<div class="section" id="using-explain">
+<h2>Using Explain<a class="headerlink" href="#using-explain" title="Permalink to this headline">¶</a></h2>
+<p>Given a query:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">employees</span> <span class="k">where</span> <span class="n">salary</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>We can inspect how Postgres will execute it with:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">EXPLAIN</span> <span class="k">SELECT</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">employees</span> <span class="k">where</span> <span class="n">salary</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">;</span>
+                          <span class="n">QUERY</span> <span class="n">PLAN</span>
+<span class="c1">--------------------------------------------------------------</span>
+ <span class="n">Seq</span> <span class="n">Scan</span> <span class="k">on</span> <span class="n">employees</span>  <span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="p">..</span><span class="mi">16</span><span class="p">.</span><span class="mi">50</span> <span class="k">rows</span><span class="o">=</span><span class="mi">173</span> <span class="n">width</span><span class="o">=</span><span class="mi">118</span><span class="p">)</span>
+   <span class="n">Filter</span><span class="p">:</span> <span class="p">(</span><span class="n">salary</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can both execute the query and inspect the path/time it took with:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">EXPLAIN</span> <span class="k">ANALYZE</span> <span class="k">SELECT</span> <span class="n">last_name</span> <span class="k">FROM</span> <span class="n">employees</span> <span class="k">where</span> <span class="n">salary</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">;</span>
+                                            <span class="n">QUERY</span> <span class="n">PLAN</span>
+<span class="c1">--------------------------------------------------------------------------------------------------------</span>
+ <span class="n">Seq</span> <span class="n">Scan</span> <span class="k">on</span> <span class="n">employees</span>  <span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="p">..</span><span class="mi">16</span><span class="p">.</span><span class="mi">50</span> <span class="k">rows</span><span class="o">=</span><span class="mi">173</span> <span class="n">width</span><span class="o">=</span><span class="mi">118</span><span class="p">)</span> <span class="p">(</span><span class="n">actual</span> <span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">018</span><span class="p">..</span><span class="mi">0</span><span class="p">.</span><span class="mi">018</span> <span class="k">rows</span><span class="o">=</span><span class="mi">0</span> <span class="n">loops</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+   <span class="n">Filter</span><span class="p">:</span> <span class="p">(</span><span class="n">salary</span> <span class="o">&gt;=</span> <span class="mi">50000</span><span class="p">)</span>
+ <span class="n">Total</span> <span class="n">runtime</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">053</span> <span class="n">ms</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="understanding-execution-plans">
+<h2>Understanding Execution Plans<a class="headerlink" href="#understanding-execution-plans" title="Permalink to this headline">¶</a></h2>
+<p>Perhaps the hardest part of execution plans is actually understanding what they mean. First a brief disclaimer, this is not to be an end all be all reference, but rather a basic starting place to understanding the queries and optimizing your database.</p>
+<p>If you run an <cite>EXPLAIN ANALYZE</cite> on the above table with 2 million rows you might see something like:</p>
+<img alt="http://cl.ly/1f3o2w3x1a41402B2g1R/1.%20psql-1.png" src="http://cl.ly/1f3o2w3x1a41402B2g1R/1.%20psql-1.png" style="width: 650px;" />
+<p>But lets take a look at what it actually means</p>
+<img alt="http://f.cl.ly/items/2F1A2T0a3h1v1d2u213O/1.%20psql-2.png" src="http://f.cl.ly/items/2F1A2T0a3h1v1d2u213O/1.%20psql-2.png" style="width: 650px;" />
+<p>There&#8217;s a couple of key items here. Often times you want to look for when a <cite>sequential scan</cite> is occurring, but more importantly you want to look at what the three items above are. The startup time, the maximum time and finally the number of rows returned. In this case, because we ran EXPLAIN ANALYZE, we have not only the estimated on the left, but the actual on the right as well:</p>
+<img alt="http://cl.ly/3i1x2D3R3w3D1I0R1h3W/1.%20psql-4.png" src="http://cl.ly/3i1x2D3R3w3D1I0R1h3W/1.%20psql-4.png" style="width: 650px;" />
+<p>In this case we see there&#8217;s a high time spent and a sequential scan. As a result we may want to try to add an index and examine the results:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">idx_emps</span> <span class="k">on</span> <span class="n">employees</span> <span class="p">(</span><span class="n">salary</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>With this we&#8217;ve now cut our query time from 295 ms to 1.7 ms:</p>
+<img alt="http://cl.ly/1j1B0w2X2k0c281M2K3E/1.%20psql-10.png" src="http://cl.ly/1j1B0w2X2k0c281M2K3E/1.%20psql-10.png" style="width: 650px;" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Execution Plan</a><ul>
+<li><a class="reference internal" href="#what-is-an-execution-plan">What is an Execution Plan</a></li>
+<li><a class="reference internal" href="#more-about-explain">More About Explain</a></li>
+<li><a class="reference internal" href="#using-explain">Using Explain</a></li>
+<li><a class="reference internal" href="#understanding-execution-plans">Understanding Execution Plans</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Postgres Performance</a><ul>
+      <li>Previous: <a href="indexes.html" title="previous chapter">Indexes</a></li>
+      <li>Next: <a href="conditional.html" title="next chapter">Conditional Constraints</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

@@ -1,0 +1,173 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Psql &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Utilities" href="index.html" />
+    <link rel="next" title="Postgres Specific Tips" href="../tips/index.html" />
+    <link rel="prev" title="Copy" href="copy.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="psql">
+<h1>Psql<a class="headerlink" href="#psql" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-psql">
+<h2>What is psql<a class="headerlink" href="#what-is-psql" title="Permalink to this headline">¶</a></h2>
+<p><cite>Psql</cite> is the interactive terminal for working with Postgres. Theres an
+abundance of flags available for use when working with psql, but lets focus
+on some of the most important ones, then how to connect:</p>
+<ul class="simple">
+<li>-h the host to connect to</li>
+<li>-U the user to connect with</li>
+<li>-P the port to connect to (default is 5432)</li>
+</ul>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">psql -h localhost -U username databasename</span>
+</pre></div>
+</div>
+<p>The other option is to use a full string and let psql parse it:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">psql &quot;dbname=dbhere host=hosthere user=userhere password=pwhere port=5432 sslmode=require&quot;</span>
+</pre></div>
+</div>
+<p>Once you&#8217;ve connected you can begin querying immediately. In addition to basic
+queries you can also use certain commands. Running <cite>\?</cite> will give you a list
+of all available commands, though a few key ones are called out the the tips
+below.</p>
+</div>
+<div class="section" id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="list-tables-in-database">
+<h3>List tables in database<a class="headerlink" href="#list-tables-in-database" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> <span class="se">\d</span>
+<span class="go">      List of relations</span>
+<span class="go"> Schema |   Name    | Type  | Owner</span>
+<span class="go">--------+-----------+-------+-------</span>
+<span class="go"> public | employees | table | craig</span>
+<span class="go">(1 row)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="describe-a-table">
+<h3>Describe a table<a class="headerlink" href="#describe-a-table" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">#</span> <span class="se">\d</span> employees
+<span class="go">           Table &quot;public.employees&quot;</span>
+<span class="go">  Column   |         Type          | Modifiers</span>
+<span class="go">-----------+-----------------------+-----------</span>
+<span class="go"> id        | integer               |</span>
+<span class="go"> last_name | character varying(50) |</span>
+<span class="go"> salary    | integer               |</span>
+<span class="go">Indexes:</span>
+<span class="go">    &quot;idx_emps&quot; btree (salary)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Psql</a><ul>
+<li><a class="reference internal" href="#what-is-psql">What is psql</a></li>
+<li><a class="reference internal" href="#tips">Tips</a><ul>
+<li><a class="reference internal" href="#list-tables-in-database">List tables in database</a></li>
+<li><a class="reference internal" href="#describe-a-table">Describe a table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Utilities</a><ul>
+      <li>Previous: <a href="copy.html" title="previous chapter">Copy</a></li>
+      <li>Next: <a href="../tips/index.html" title="next chapter">Postgres Specific Tips</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

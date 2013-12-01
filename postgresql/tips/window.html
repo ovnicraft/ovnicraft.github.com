@@ -1,0 +1,149 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Window Functions &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Postgres Specific Tips" href="index.html" />
+    <link rel="next" title="Postgres Performance" href="../performance/index.html" />
+    <link rel="prev" title="Working with Dates and Times" href="dates.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="window-functions">
+<h1>Window Functions<a class="headerlink" href="#window-functions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-are-they">
+<h2>What are they<a class="headerlink" href="#what-are-they" title="Permalink to this headline">¶</a></h2>
+<p>The Postgres docs actually do a great job of explaining what window functions
+are: &#8220;A window function performs a calculation across a set of table rows that are somehow related to the current row. This is comparable to the type of calculation that can be done with an aggregate function. But unlike regular aggregate functions, use of a window function does not cause rows to become grouped into a single output row — the rows retain their separate identities. Behind the scenes, the window function is able to access more than just the current row of the query result.&#8221; <a class="reference external" href="http://www.postgresql.org/docs/9.1/static/tutorial-window.html">ref</a>. However, even as clear as that is the value of them may not be immediately clear, so perhaps its easiest to see them in action.</p>
+</div>
+<div class="section" id="window-functions-in-action">
+<h2>Window Functions in Action<a class="headerlink" href="#window-functions-in-action" title="Permalink to this headline">¶</a></h2>
+<p>Lets take an example table:</p>
+<img alt="http://f.cl.ly/items/3U200N113O2U2g1j2g3V/Untitled%202-3.png" src="http://f.cl.ly/items/3U200N113O2U2g1j2g3V/Untitled%202-3.png" />
+<p>Lets assume that you wanted to find the highest paid person in each department. There&#8217;s a chance you could do this by creating a complicated stored procedure, or maybe even some very complex SQL. Most developers would even opt for pulling the data back into their preferred language and then looping over results. With window functions this gets much easier.</p>
+<p>First we can rank each individual over a certain grouping:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">salary</span><span class="p">,</span> <span class="n">department</span><span class="p">,</span> <span class="n">rank</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">department</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">salary</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">employees</span><span class="p">;</span>
+<span class="n">last_name</span>    <span class="n">salary</span>   <span class="n">department</span>    <span class="n">rank</span>
+<span class="n">Jones</span>        <span class="mi">45000</span>    <span class="n">Accounting</span>    <span class="mi">1</span>
+<span class="n">Williams</span>     <span class="mi">37000</span>    <span class="n">Accounting</span>    <span class="mi">2</span>
+<span class="n">Smith</span>        <span class="mi">55000</span>    <span class="n">Sales</span>         <span class="mi">1</span>
+<span class="n">Adams</span>        <span class="mi">50000</span>    <span class="n">Sales</span>         <span class="mi">2</span>
+<span class="n">Johnson</span>      <span class="mi">40000</span>    <span class="n">Marketing</span>     <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Hopefully its clear from here how we can filter and find only the top paid employee in each department:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">salary</span><span class="p">,</span> <span class="n">department</span><span class="p">,</span> <span class="n">rank</span><span class="p">()</span> <span class="n">OVER</span> <span class="p">(</span><span class="n">PARTITION</span> <span class="k">BY</span> <span class="n">department</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">salary</span> <span class="k">DESC</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">employees</span><span class="p">)</span> <span class="n">sub_query</span> <span class="k">WHERE</span> <span class="n">rank</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">last_name</span>    <span class="n">salary</span>   <span class="n">department</span>    <span class="n">rank</span>
+<span class="n">Jones</span>        <span class="mi">45000</span>    <span class="n">Accounting</span>    <span class="mi">1</span>
+<span class="n">Smith</span>        <span class="mi">55000</span>    <span class="n">Sales</span>         <span class="mi">1</span>
+<span class="n">Johnson</span>      <span class="mi">40000</span>    <span class="n">Marketing</span>     <span class="mi">1</span>
+</pre></div>
+</div>
+<p>The best part of this is Postgres will optimize the query for you versus parsing over the entire result set if you were to do this your self in plpgsql or in your applications code.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Window Functions</a><ul>
+<li><a class="reference internal" href="#what-are-they">What are they</a></li>
+<li><a class="reference internal" href="#window-functions-in-action">Window Functions in Action</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Postgres Specific Tips</a><ul>
+      <li>Previous: <a href="dates.html" title="previous chapter">Working with Dates and Times</a></li>
+      <li>Next: <a href="../performance/index.html" title="next chapter">Postgres Performance</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>

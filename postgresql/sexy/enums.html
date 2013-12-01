@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Enumerated Data Types &mdash; Postgres Guide</title>
+    
+    <link rel="stylesheet" href="../_static/jinja.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Postgres Guide" href="../index.html" />
+    <link rel="up" title="Postgres the Sexy Parts" href="index.html" />
+    <link rel="prev" title="Arrays" href="arrays.html" />
+<meta name="google-site-verification" content="jW7iDEQW1i1VPuOfxmakMrDWKy3aEPe-x75IsSj4Gco" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="enumerated-data-types">
+<h1>Enumerated Data Types<a class="headerlink" href="#enumerated-data-types" title="Permalink to this headline">¶</a></h1>
+<p>Postgres provides enumerated types or ‘enums’ if you need to make sure some column values need to have a specific value out of a set of values. For eg, if you need a column to only have values ‘Email’, ‘SMS’ and ‘Phone’, you can do this by first defining an enumerated type:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">TYPE</span> <span class="n">e_contact_method</span> <span class="k">AS</span> <span class="n">ENUM</span> <span class="p">(</span><span class="s1">&#39;Email&#39;</span><span class="p">,</span> <span class="s1">&#39;Sms&#39;</span><span class="p">,</span> <span class="s1">&#39;Phone&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then associate the enum to the column that needs to have a fixed set of values.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">contact_method_info</span> <span class="p">(</span>
+   <span class="n">contact_name</span> <span class="nb">text</span><span class="p">,</span>
+   <span class="n">contact_method</span> <span class="n">e_contact_method</span><span class="p">,</span>
+   <span class="n">value</span> <span class="nb">text</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="using-enums">
+<h2>Using enums<a class="headerlink" href="#using-enums" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">contact_method_info</span>
+<span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;Jeff&#39;</span><span class="p">,</span> <span class="s1">&#39;Email&#39;</span><span class="p">,</span> <span class="s1">&#39;jeff@mail.com&#39;</span><span class="p">)</span>
+
+<span class="o">#</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">contact_method_info</span><span class="p">;</span>
+<span class="n">contact_name</span> <span class="o">|</span> <span class="n">contact_method</span> <span class="o">|</span>     <span class="n">value</span>
+<span class="c1">--------------+----------------+---------------</span>
+<span class="n">Jeff</span>         <span class="o">|</span> <span class="n">Email</span>          <span class="o">|</span> <span class="n">jeff</span><span class="o">@</span><span class="n">mail</span><span class="p">.</span><span class="n">com</span>
+<span class="p">(</span><span class="mi">1</span> <span class="k">row</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You cannot insert a value for the contact_method column thats not in e_contact_method enum.</p>
+<div class="highlight-sql"><pre># INSERT INTO contact_method_info VALUES ('Jeff', 'Fax', '4563456');
+ERROR:  invalid input value for enum e_contact_method: "Fax"
+LINE 1: INSERT INTO contact_method_info VALUES ('Jeff', 'Fax', '4563...</pre>
+</div>
+</div>
+<div class="section" id="viewing-modifying-enum-values">
+<h2>Viewing/Modifying enum values<a class="headerlink" href="#viewing-modifying-enum-values" title="Permalink to this headline">¶</a></h2>
+<p>You can view the list of values in an enum:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="o">#</span> <span class="k">select</span> <span class="n">t</span><span class="p">.</span><span class="n">typname</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">enumlabel</span> <span class="k">from</span> <span class="n">pg_type</span> <span class="n">t</span><span class="p">,</span> <span class="n">pg_enum</span> <span class="n">e</span>
+  <span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">enumtypid</span><span class="p">;</span>
+    <span class="n">typname</span>      <span class="o">|</span> <span class="n">enumlabel</span>
+  <span class="c1">------------------+-----------</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Email</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Sms</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Phone</span>
+<span class="p">(</span><span class="mi">3</span> <span class="k">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can append values to existing enums:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">ALTER</span> <span class="k">TYPE</span> <span class="n">e_contact_method</span>
+ <span class="k">ADD</span> <span class="n">VALUE</span> <span class="s1">&#39;Facebook&#39;</span> <span class="k">AFTER</span> <span class="s1">&#39;Phone&#39;</span><span class="p">;</span>
+
+<span class="o">#</span> <span class="k">select</span> <span class="n">t</span><span class="p">.</span><span class="n">typname</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">enumlabel</span> <span class="k">from</span> <span class="n">pg_type</span> <span class="n">t</span><span class="p">,</span> <span class="n">pg_enum</span> <span class="n">e</span>
+  <span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">enumtypid</span><span class="p">;</span>
+    <span class="n">typname</span>      <span class="o">|</span> <span class="n">enumlabel</span>
+<span class="c1">------------------+-----------</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Email</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Sms</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Phone</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Facebook</span>
+<span class="p">(</span><span class="mi">4</span> <span class="k">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Values can be added anywhere in between as enums have a sort order which is the order in which the value was inserted, and it is preserved.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">ALTER</span> <span class="k">TYPE</span> <span class="n">e_contact_method</span>
+ <span class="k">ADD</span> <span class="n">VALUE</span> <span class="s1">&#39;Twitter&#39;</span> <span class="k">BEFORE</span> <span class="s1">&#39;Sms&#39;</span><span class="p">;</span>
+
+<span class="o">#</span> <span class="k">select</span> <span class="n">t</span><span class="p">.</span><span class="n">typname</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">enumlabel</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">enumsortorder</span> <span class="k">from</span> <span class="n">pg_type</span> <span class="n">t</span><span class="p">,</span> <span class="n">pg_enum</span> <span class="n">e</span>
+  <span class="k">where</span> <span class="n">t</span><span class="p">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">enumtypid</span> <span class="k">order</span> <span class="k">by</span> <span class="n">e</span><span class="p">.</span><span class="n">enumsortorder</span><span class="p">;</span>
+    <span class="n">typname</span>      <span class="o">|</span> <span class="n">enumlabel</span> <span class="o">|</span> <span class="n">enumsortorder</span>
+<span class="c1">------------------+-----------+---------------</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Email</span>     <span class="o">|</span>             <span class="mi">1</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Twitter</span>   <span class="o">|</span>           <span class="mi">1</span><span class="p">.</span><span class="mi">5</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Sms</span>       <span class="o">|</span>             <span class="mi">2</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Phone</span>     <span class="o">|</span>             <span class="mi">3</span>
+<span class="n">e_contact_method</span> <span class="o">|</span> <span class="n">Facebook</span>  <span class="o">|</span>             <span class="mi">4</span>
+<span class="p">(</span><span class="mi">5</span> <span class="k">rows</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At the time of this writing, Postgres does not provide a way to remove values from enums.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Enumerated Data Types</a><ul>
+<li><a class="reference internal" href="#using-enums">Using enums</a></li>
+<li><a class="reference internal" href="#viewing-modifying-enum-values">Viewing/Modifying enum values</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Postgres the Sexy Parts</a><ul>
+      <li>Previous: <a href="arrays.html" title="previous chapter">Arrays</a></li>
+  </ul></li>
+  </ul></li>
+</ul><h3>Other Resources</h3>
+<ul>
+  <li><a href="http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/184951030X/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=184951030X');return false;">Postgres High Performance</a>
+  <li><a href="http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1590594789/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1590594789');return false;">Beginning Databases with PostgreSQL</a>
+  <li><a href="http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409" onClick="recordOutboundLink(this, 'Outbound Links', 'http://www.amazon.com/gp/product/1449316409/ref=as_li_qf_sp_asin_tl?ie=UTF8&tag=mypred-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1449316409');return false;">SQL and Relational Theory</a>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4670852-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<script type="text/javascript">
+  function recordOutboundLink(link, category, action) {
+    _gat._getTrackerByName()._trackEvent(category, action);
+    setTimeout('document.location = "' + link.href + '"', 100);
+  }
+</script>
+
+<div class="document">
+<div class="documentwrapper">
+</div>
+</div>
+
+
+  </body>
+</html>
