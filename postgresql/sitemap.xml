@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://postgresguide.com/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/rss.xml</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/sitemap.xml</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/performance/conditional.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/performance/explain.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/performance/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/performance/indexes.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/setup/database.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/setup/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/setup/install.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/setup/users.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/sexy/arrays.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/sexy/enums.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/sexy/hstore.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/sexy/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/SQL/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/SQL/joins.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/SQL/select.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/SQL/views.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/tips/cte.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/tips/dates.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/tips/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/tips/window.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/utilities/backup-restore.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/utilities/copy.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/utilities/index.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://postgresguide.com/utilities/psql.html</loc>
+    <lastmod>2013-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+</urlset> 
